@@ -1,6 +1,11 @@
 #include <stdint.h>
+#include "drivers/keyboard.hpp"
+#include "drivers/timer.hpp"
+#include "memory/memory.hpp"
+#include "filesystem/vfs.hpp"
+#include "system/process.hpp"
+#include "system/scheduler.hpp"
 
-// VGA text mode color constants
 enum vga_color {
     VGA_COLOR_BLACK = 0,
     VGA_COLOR_BLUE = 1,
@@ -72,8 +77,27 @@ void terminal_writestring(const char* data) {
         terminal_putchar(*data++);
 }
 
+// Initialize system components
+void init_system() {
+    memory_initialize();
+    keyboard_initialize();
+    timer_initialize(50); // 50Hz timer frequency
+    process_init();
+    scheduler_init();
+    vfs_init();
+}
+
 extern "C" void kernel_main() {
     terminal_initialize();
+    init_system();
+    
     terminal_writestring("Welcome to MyOS!\n");
-    while(1) {}
+    terminal_writestring("Initializing system components...\n");
+    
+    // Enter the main system loop
+    while(1) {
+        scheduler_run();
+        process_check();
+        keyboard_check();
+    }
 }
