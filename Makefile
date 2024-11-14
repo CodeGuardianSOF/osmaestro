@@ -1,9 +1,9 @@
 # Compiler and linker settings
-CXX = i686-elf-g++
+CXX = x86_64-elf-g++
 AS = nasm
-CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
-LDFLAGS = -ffreestanding -O2 -nostdlib
-ASFLAGS = -f elf32
+CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -mcmodel=large -mno-red-zone
+LDFLAGS = -ffreestanding -O2 -nostdlib -z max-page-size=0x1000
+ASFLAGS = -f elf64
 
 # Source files
 SOURCES_ASM = src/boot.asm
@@ -36,7 +36,7 @@ $(KERNEL): $(OBJECTS)
 	$(AS) $(ASFLAGS) $< -o $@
 
 run: $(ISO)
-	qemu-system-i386 -cdrom $(ISO)
+	qemu-system-x86_64 -cdrom $(ISO)
 
 clean:
 	rm -f $(OBJECTS) $(KERNEL) $(ISO)
